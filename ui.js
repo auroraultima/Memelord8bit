@@ -33,21 +33,41 @@ const MEME_TYPES = [
     { type: "HEAL", lines: ["+КОФЕ", "HP"], color: COLORS.pink, pts: 25, weight: 7, extraSpeed: 95 }
 ];
 
-function loadRecords() {
+const API_URL = "https://functions.yandexcloud.net/d4etespa5mp5hg3fu6li";
+
+function loadLocalRecords() {
     try {
         const raw = localStorage.getItem("memelord_top5");
         return raw ? JSON.parse(raw) : [];
     } catch { return []; }
 }
 
-let records = loadRecords();
+let records = loadLocalRecords();
 let bestScore = records.length > 0 ? records.at(0).score : 0;
+let isSyncing = false;
 
-function addRecord(newScore) {
-    records = loadRecords();
+// Загружаем актуальный ТОП-5 с сервера Yandex Cloud при открытии игры
+async function fetchOnlineRecords() {
+    try {
+        const res = await fetch(API_URL);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (Array.isArray(data)) {
+            records = data;
+            localStorage.setItem("memelord_top5", JSON.stringify(records));
+            if (records.length > 0) bestScore = records.at(0).score;
+        }
+    } catch (e) {
+        console.warn("Офлайн-режим рекордов:", e);
+    }
+}
+
+fetchOnlineRecords();
+
+async function addRecord(newScore) {
     if (newScore <= 0) return;
 
-    // Проверяем, попал ли результат в ТОП-5
+    // Проверяем, попал ли результат в текущий ТОП-5
     const qualifies = records.length < 5 || newScore > records.at(-1).score;
     if (qualifies) {
         const entered = window.prompt("НОВЫЙ РЕКОРД В ТОП-5! Введи никнейм (до 10 букв):", playerName);
@@ -55,14 +75,37 @@ function addRecord(newScore) {
             playerName = entered.trim().toUpperCase().slice(0, 10);
             localStorage.setItem("memelord_player_name", playerName);
         }
-    }
 
-    records.forEach(r => r.isNew = false);
-    records.push({ name: playerName, score: newScore, isNew: true });
-    records.sort((a, b) => b.score - a.score);
-    records = records.slice(0, 5);
-    localStorage.setItem("memelord_top5", JSON.stringify(records.map(r => ({ name: r.name, score: r.score }))));
-    bestScore = records.at(0).score;
+        // Сразу добавляем в локальный список для мгновенного отображения
+        isSyncing = true;
+        records.push({ name: playerName, score: newScore, isNew: true });
+        records.sort((a, b) => b.score - a.score);
+        records = records.slice(0, 5);
+        bestScore = records.at(0).score;
+
+        // Отправляем рекорд в облачную функцию Yandex Cloud
+        try {
+            const res = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: playerName, score: newScore })
+            });
+            if (res.ok) {
+                const updated = await res.json();
+                if (Array.isArray(updated)) {
+                    records = updated;
+                    const found = records.find(r => r.name === playerName && r.score === newScore);
+                    if (found) found.isNew = true;
+                    localStorage.setItem("memelord_top5", JSON.stringify(records.map(r => ({ name: r.name, score: r.score }))));
+                    if (records.length > 0) bestScore = records.at(0).score;
+                }
+            }
+        } catch (e) {
+            console.warn("Не удалось отправить рекорд на сервер:", e);
+        } finally {
+            isSyncing = false;
+        }
+    }
 }
 
 function drawPlayer(player, ox, oy) {
@@ -182,7 +225,9 @@ function drawGameOverScreen(score) {
 
     ctx.fillStyle = COLORS.cyan;
     ctx.font = "bold 15px 'Courier New'";
-    ctx.fillText("--- ТОП-5 МЕМ-ЛОРДОВ ---", W / 2, boxY + 54);
+    const topTitle = isSyncing ? "--- СИНХРОНИЗАЦИЯ... ---" : "--- ТОП-5 ОНЛАЙН ---";
+    ctx.fillText(topTitle, W / 2, boxY + 54);
+
 
     ctx.textAlign = "left";
     ctx.font = "bold 14px 'Courier New'";
