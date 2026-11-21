@@ -35,57 +35,33 @@ window.addEventListener("keydown", e => {
 });
 window.addEventListener("keyup", e => { keys[e.code] = false; });
 
-function getCanvasCoords(clientX, clientY) {
-    const rect = canvas.getBoundingClientRect();
-    return {
-        x: (clientX - rect.left) * (W / rect.width),
-        y: (clientY - rect.top) * (H / rect.height)
-    };
+function bindHoldButton(id, keyCode) {
+    const el = document.getElementById(id);
+    const press = e => { e.preventDefault(); keys[keyCode] = true; };
+    const release = e => { e.preventDefault(); keys[keyCode] = false; };
+    el.addEventListener("touchstart", press, { passive: false });
+    el.addEventListener("touchend", release);
+    el.addEventListener("touchcancel", release);
+    el.addEventListener("mousedown", press);
+    el.addEventListener("mouseup", release);
+    el.addEventListener("mouseleave", release);
 }
 
-function isInsideBanBtn(pos) {
-    return pos.x >= banBtn.x && pos.x <= banBtn.x + banBtn.w &&
-           pos.y >= banBtn.y && pos.y <= banBtn.y + banBtn.h;
-}
+bindHoldButton("btnLeft", "ArrowLeft");
+bindHoldButton("btnRight", "ArrowRight");
 
-canvas.addEventListener("touchstart", e => {
-    if (!gameStarted || gameOver) { startNewGame(); return; }
-    for (let i = 0; i < e.changedTouches.length; i++) {
-        const pos = getCanvasCoords(e.changedTouches.item(i).clientX, e.changedTouches.item(i).clientY);
-        if (isInsideBanBtn(pos)) {
-            throwBanhammer();
-        } else {
-            pointerX = pos.x;
-        }
-    }
-}, { passive: true });
+const btnBan = document.getElementById("btnBan");
+const fireAction = e => {
+    e.preventDefault();
+    if (!gameStarted || gameOver) startNewGame();
+    else throwBanhammer();
+};
+btnBan.addEventListener("touchstart", fireAction, { passive: false });
+btnBan.addEventListener("mousedown", fireAction);
 
-canvas.addEventListener("touchmove", e => {
-    for (let i = 0; i < e.changedTouches.length; i++) {
-        const pos = getCanvasCoords(e.changedTouches.item(i).clientX, e.changedTouches.item(i).clientY);
-        if (!isInsideBanBtn(pos)) pointerX = pos.x;
-    }
-}, { passive: true });
-
-canvas.addEventListener("touchend", e => {
-    if (e.touches.length === 0) pointerX = null;
+canvas.addEventListener("click", () => {
+    if (!gameStarted || gameOver) startNewGame();
 });
-
-canvas.addEventListener("mousedown", e => {
-    if (!gameStarted || gameOver) { startNewGame(); return; }
-    const pos = getCanvasCoords(e.clientX, e.clientY);
-    if (isInsideBanBtn(pos)) throwBanhammer();
-    else pointerX = pos.x;
-});
-
-canvas.addEventListener("mousemove", e => {
-    if (e.buttons === 1) {
-        const pos = getCanvasCoords(e.clientX, e.clientY);
-        if (!isInsideBanBtn(pos)) pointerX = pos.x;
-    }
-});
-
-canvas.addEventListener("mouseup", () => { pointerX = null; });
 
 function spawnItem() {
     const total = MEME_TYPES.reduce((s, it) => s + it.weight, 0);
@@ -211,10 +187,6 @@ function loop(now) {
     for (const p of particles) { ctx.fillStyle = p.color; ctx.fillRect(p.x + ox - 3, p.y + oy - 3, 6, 6); }
     drawPlayer(player, ox, oy);
    
-    if (gameStarted && !gameOver) {
-        drawBanButton(shootCooldown);
-    }
-
     // HUD
     ctx.fillStyle = "#000000"; ctx.fillRect(12, 12, W - 24, 52);
     ctx.strokeStyle = COLORS.white; ctx.lineWidth = 3; ctx.strokeRect(12, 12, W - 24, 52);
