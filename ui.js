@@ -190,20 +190,3 @@ function drawGameOverScreen(score) {
     ctx.font = "bold 14px 'Courier New'";
     ctx.fillText(">> Нажми / ПРОБЕЛ для рестарта <<", W / 2, boxY + boxH - 18);
 }
-
-const banBtn = { x: W - 115, y: H - 145, w: 98, h: 68 };
-
-function drawBanButton(cooldown) {
-    const ready = cooldown <= 0;
-    ctx.fillStyle = ready ? "#b71c1c" : "#3a3a4a";
-    ctx.fillRect(banBtn.x, banBtn.y, banBtn.w, banBtn.h);
-    ctx.strokeStyle = ready ? COLORS.yellow : "#777788";
-    ctx.lineWidth = 3;
-    ctx.strokeRect(banBtn.x, banBtn.y, banBtn.w, banBtn.h);
-
-    ctx.fillStyle = ready ? COLORS.white : "#999999";
-    ctx.font = "bold 18px 'Courier New'";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("БАН!", banBtn.x + banBtn.w / 2, banBtn.y + banBtn.h / 2);
-}
