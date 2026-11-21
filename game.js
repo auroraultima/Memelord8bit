@@ -15,7 +15,7 @@ function startNewGame() {
 
 function throwBanhammer() {
     if (shootCooldown > 0 || gameOver || !gameStarted) return;
-    shootCooldown = 0.35;
+    shootCooldown = 0.18;
     hammers.push({ x: player.x + player.w / 2, y: player.y - 25, speed: 580, angle: 0 });
     play8BitSound(380, 160, 0.08, "triangle");
 }

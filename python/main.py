@@ -58,7 +58,7 @@ def throw_banhammer():
     global shoot_cooldown
     if shoot_cooldown > 0 or game_over or not game_started:
         return
-    shoot_cooldown = 0.35
+    shoot_cooldown = 0.18
     hammers.append({"x": player_rect.centerx, "y": player_rect.top - 20, "speed": 620.0, "angle": 0.0})
     sounds["throw"].play()
 
