@@ -106,24 +106,64 @@ function drawStartModal() {
 }
 
 function drawGameOverScreen(score) {
-    if (gameOverImgLoaded) ctx.drawImage(gameOverImg, 0, 0, W, H);
-    else { ctx.fillStyle = "rgba(0, 0, 0, 0.85)"; ctx.fillRect(0, 0, W, H); }
+    // 1. Заливаем фон темным цветом
+    ctx.fillStyle = "#11121d";
+    ctx.fillRect(0, 0, W, H);
 
-    const boxH = 245, boxY = H - boxH - 12;
-    ctx.fillStyle = COLORS.blueBox; ctx.fillRect(12, boxY, W - 24, boxH);
-    ctx.strokeStyle = COLORS.white; ctx.lineWidth = 4; ctx.strokeRect(12, boxY, W - 24, boxH);
-    ctx.lineWidth = 2; ctx.strokeRect(18, boxY + 6, W - 36, boxH - 12);
+    // 2. Нижнее синее RPG-окно с рекордами
+    const boxH = 245;
+    const boxY = H - boxH - 12;
 
-    ctx.textAlign = "center"; ctx.fillStyle = COLORS.red; ctx.font = "bold 18px 'Courier New'";
+    // 3. Картинка gameover.png ровно НАД синим окном (с сохранением пропорций)
+    if (gameOverImgLoaded) {
+        const margin = 12;
+        const availW = W - margin * 2;
+        const availH = boxY - margin * 2;
+        const ratio = gameOverImg.width / gameOverImg.height;
+
+        let drawW = availW;
+        let drawH = drawW / ratio;
+
+        if (drawH > availH) {
+            drawH = availH;
+            drawW = drawH * ratio;
+        }
+
+        const imgX = (W - drawW) / 2;
+        const imgY = margin + (availH - drawH) / 2;
+
+        ctx.drawImage(gameOverImg, imgX, imgY, drawW, drawH);
+
+        // Аккуратная белая 8-битная рамка вокруг картинки
+        ctx.strokeStyle = COLORS.white;
+        ctx.lineWidth = 3;
+        ctx.strokeRect(imgX, imgY, drawW, drawH);
+    }
+
+    // 4. Отрисовка самого синего RPG-окна
+    ctx.fillStyle = COLORS.blueBox;
+    ctx.fillRect(12, boxY, W - 24, boxH);
+    ctx.strokeStyle = COLORS.white;
+    ctx.lineWidth = 4;
+    ctx.strokeRect(12, boxY, W - 24, boxH);
+    ctx.lineWidth = 2;
+    ctx.strokeRect(18, boxY + 6, W - 36, boxH - 12);
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = COLORS.red;
+    ctx.font = "bold 18px 'Courier New'";
     ctx.fillText(`ПЕРЕДОЗ БАЯНАМИ!  СЧЕТ: ${score}`, W / 2, boxY + 28);
 
-    ctx.fillStyle = COLORS.cyan; ctx.font = "bold 15px 'Courier New'";
+    ctx.fillStyle = COLORS.cyan;
+    ctx.font = "bold 15px 'Courier New'";
     ctx.fillText("--- ТОП-5 МЕМ-ЛОРДОВ ---", W / 2, boxY + 54);
 
-    ctx.textAlign = "left"; ctx.font = "bold 14px 'Courier New'";
+    ctx.textAlign = "left";
+    ctx.font = "bold 14px 'Courier New'";
     let cy = boxY + 80;
     if (records.length === 0) {
-        ctx.textAlign = "center"; ctx.fillStyle = COLORS.white;
+        ctx.textAlign = "center";
+        ctx.fillStyle = COLORS.white;
         ctx.fillText("Пока нет рекордов. Набери > 0 очков!", W / 2, cy + 20);
     } else {
         records.forEach((rec, i) => {
@@ -134,6 +174,8 @@ function drawGameOverScreen(score) {
         });
     }
 
-    ctx.textAlign = "center"; ctx.fillStyle = COLORS.yellow; ctx.font = "bold 14px 'Courier New'";
+    ctx.textAlign = "center";
+    ctx.fillStyle = COLORS.yellow;
+    ctx.font = "bold 14px 'Courier New'";
     ctx.fillText(">> Нажми / ПРОБЕЛ для рестарта <<", W / 2, boxY + boxH - 18);
 }
