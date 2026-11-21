@@ -32,6 +32,11 @@
             height: 68px;
             gap: 10px;
         }
+        /* На ПК (устройства с мышью и точным курсором) скрываем кнопки и растягиваем холст */
+        @media (hover: hover) and (pointer: fine) {
+            .controls { display: none; }
+            canvas { max-height: calc(100dvh - 16px); }
+        }
         .btn {
             flex: 1;
             background: #22263a;

@@ -80,16 +80,30 @@ function drawStartModal() {
     ctx.fillStyle = "rgba(0, 0, 0, 0.78)";
     ctx.fillRect(0, 0, W, H);
 
-    const bw = 436, bh = 410;
+    const bw = 444, bh = 420;
     const bx = (W - bw) / 2, by = (H - bh) / 2;
     ctx.fillStyle = COLORS.blueBox; ctx.fillRect(bx, by, bw, bh);
     ctx.strokeStyle = COLORS.white; ctx.lineWidth = 4; ctx.strokeRect(bx, by, bw, bh);
     ctx.lineWidth = 2; ctx.strokeRect(bx + 8, by + 8, bw - 16, bh - 16);
 
     ctx.textAlign = "center"; ctx.fillStyle = COLORS.yellow; ctx.font = "bold 24px 'Courier New'";
-    ctx.fillText("MEMELORD: 8-BIT EDITION", W / 2, by + 40);
+    ctx.fillText("MEMELORD: 8-BIT EDITION", W / 2, by + 38);
 
-    const rules = [
+    const isDesktop = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+    const rules = isDesktop ? [
+        ["СМЫСЛ ИГРЫ:", COLORS.white],
+        ["* Лови ГОДНОТУ и ЗОЛОТОЙ ФОНД.", COLORS.green],
+        ["* Избегай БАЯНОВ и КРИНЖА (-25 HP).", COLORS.red],
+        ["* Лови редкий +КОФЕ для лечения.", COLORS.pink],
+        ["* Бей баяны МОЛОТКОМ (+50 очков),", COLORS.cyan],
+        ["  но не зацепи годноту (штраф)!", COLORS.cyan],
+        ["", COLORS.white],
+        ["УПРАВЛЕНИЕ (ПК):", COLORS.yellow],
+        ["Стрелки / A, D — двигать кресло", COLORS.white],
+        ["ПРОБЕЛ / W / ↑ — кинуть банхаммер", COLORS.white],
+        ["M              — вкл/выкл музыку", COLORS.white]
+    ] : [
         ["СМЫСЛ ИГРЫ:", COLORS.white],
         ["* Лови ГОДНОТУ и ЗОЛОТОЙ ФОНД.", COLORS.green],
         ["* Избегай БАЯНОВ и КРИНЖА (-25 HP).", COLORS.red],
@@ -98,21 +112,22 @@ function drawStartModal() {
         ["  но не зацепи годноту (штраф)!", COLORS.cyan],
         ["", COLORS.white],
         ["УПРАВЛЕНИЕ:", COLORS.yellow],
-        ["Палец / Стрелки — двигать кресло", COLORS.white],
-        ["Тап / ПРОБЕЛ     — банхаммер", COLORS.white],
-        ["M                — вкл/выкл звук", COLORS.white]
+        ["Кнопки ◀ / ▶   — двигать кресло", COLORS.white],
+        ["Кнопка БАН!    — кинуть банхаммер", COLORS.white],
+        ["Тап по экрану  — старт / рестарт", COLORS.white]
     ];
 
     ctx.textAlign = "left"; ctx.font = "bold 15px 'Courier New'";
-    let cy = by + 80;
+    let cy = by + 76;
     for (const [txt, col] of rules) {
-        if (txt) { ctx.fillStyle = col; ctx.fillText(txt, bx + 24, cy); }
+        if (txt) { ctx.fillStyle = col; ctx.fillText(txt, bx + 22, cy); }
         cy += 24;
     }
 
     if (Math.floor(performance.now() / 450) % 2 === 0) {
-        ctx.textAlign = "center"; ctx.fillStyle = COLORS.yellow; ctx.font = "bold 17px 'Courier New'";
-        ctx.fillText(">> НАЖМИ / ПРОБЕЛ ДЛЯ СТАРТА <<", W / 2, by + bh - 26);
+        ctx.textAlign = "center"; ctx.fillStyle = COLORS.yellow; ctx.font = "bold 16px 'Courier New'";
+        const startHint = isDesktop ? ">> НАЖМИ ПРОБЕЛ ДЛЯ СТАРТА <<" : ">> ТАПНИ ПО ЭКРАНУ ДЛЯ СТАРТА <<";
+        ctx.fillText(startHint, W / 2, by + bh - 24);
     }
 }
 
