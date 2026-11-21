@@ -131,7 +131,12 @@ function loop(now) {
                     hp += it.pts; shakeTimer = 0.25; play8BitSound(220, 75, 0.25);
                     // if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred("heavy");
                     statusText = `* ОЙ! Попался ${it.cleanLabel}!`;
-                    if (hp <= 0) { hp = 0; gameOver = true; addRecord(score); }
+                    if (hp <= 0) {
+                        hp = 0;
+                        gameOver = true;
+                        setTimeout(() => addRecord(score), 100);
+                    }
+
                 } else if (it.type === "HEAL") {
                     const oldHp = hp; hp = Math.min(100, hp + it.pts); play8BitSound(440, 1100, 0.25);
                     // if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
