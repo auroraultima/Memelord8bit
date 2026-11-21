@@ -35,28 +35,57 @@ window.addEventListener("keydown", e => {
 });
 window.addEventListener("keyup", e => { keys[e.code] = false; });
 
-function updatePointer(clientX) {
+function getCanvasCoords(clientX, clientY) {
     const rect = canvas.getBoundingClientRect();
-    pointerX = (clientX - rect.left) * (W / rect.width);
+    return {
+        x: (clientX - rect.left) * (W / rect.width),
+        y: (clientY - rect.top) * (H / rect.height)
+    };
+}
+
+function isInsideBanBtn(pos) {
+    return pos.x >= banBtn.x && pos.x <= banBtn.x + banBtn.w &&
+           pos.y >= banBtn.y && pos.y <= banBtn.y + banBtn.h;
 }
 
 canvas.addEventListener("touchstart", e => {
     if (!gameStarted || gameOver) { startNewGame(); return; }
-    isPointerDown = true;
-    updatePointer(e.touches.item(0).clientX);
-    throwBanhammer();
+    for (let i = 0; i < e.changedTouches.length; i++) {
+        const pos = getCanvasCoords(e.changedTouches.item(i).clientX, e.changedTouches.item(i).clientY);
+        if (isInsideBanBtn(pos)) {
+            throwBanhammer();
+        } else {
+            pointerX = pos.x;
+        }
+    }
 }, { passive: true });
-canvas.addEventListener("touchmove", e => updatePointer(e.touches.item(0).clientX), { passive: true });
-canvas.addEventListener("touchend", () => { pointerX = null; isPointerDown = false; });
+
+canvas.addEventListener("touchmove", e => {
+    for (let i = 0; i < e.changedTouches.length; i++) {
+        const pos = getCanvasCoords(e.changedTouches.item(i).clientX, e.changedTouches.item(i).clientY);
+        if (!isInsideBanBtn(pos)) pointerX = pos.x;
+    }
+}, { passive: true });
+
+canvas.addEventListener("touchend", e => {
+    if (e.touches.length === 0) pointerX = null;
+});
 
 canvas.addEventListener("mousedown", e => {
     if (!gameStarted || gameOver) { startNewGame(); return; }
-    isPointerDown = true;
-    updatePointer(e.clientX);
-    throwBanhammer();
+    const pos = getCanvasCoords(e.clientX, e.clientY);
+    if (isInsideBanBtn(pos)) throwBanhammer();
+    else pointerX = pos.x;
 });
-canvas.addEventListener("mousemove", e => { if (e.buttons === 1) updatePointer(e.clientX); });
-canvas.addEventListener("mouseup", () => { pointerX = null; isPointerDown = false; });
+
+canvas.addEventListener("mousemove", e => {
+    if (e.buttons === 1) {
+        const pos = getCanvasCoords(e.clientX, e.clientY);
+        if (!isInsideBanBtn(pos)) pointerX = pos.x;
+    }
+});
+
+canvas.addEventListener("mouseup", () => { pointerX = null; });
 
 function spawnItem() {
     const total = MEME_TYPES.reduce((s, it) => s + it.weight, 0);
@@ -181,6 +210,10 @@ function loop(now) {
 
     for (const p of particles) { ctx.fillStyle = p.color; ctx.fillRect(p.x + ox - 3, p.y + oy - 3, 6, 6); }
     drawPlayer(player, ox, oy);
+   
+    if (gameStarted && !gameOver) {
+        drawBanButton(shootCooldown);
+    }
 
     // HUD
     ctx.fillStyle = "#000000"; ctx.fillRect(12, 12, W - 24, 52);
