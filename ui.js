@@ -46,6 +46,17 @@ let bestScore = records.length > 0 ? records.at(0).score : 0;
 function addRecord(newScore) {
     records = loadRecords();
     if (newScore <= 0) return;
+
+    // Проверяем, попал ли результат в ТОП-5
+    const qualifies = records.length < 5 || newScore > records.at(-1).score;
+    if (qualifies) {
+        const entered = window.prompt("НОВЫЙ РЕКОРД В ТОП-5! Введи никнейм (до 10 букв):", playerName);
+        if (entered !== null && entered.trim() !== "") {
+            playerName = entered.trim().toUpperCase().slice(0, 10);
+            localStorage.setItem("memelord_player_name", playerName);
+        }
+    }
+
     records.forEach(r => r.isNew = false);
     records.push({ name: playerName, score: newScore, isNew: true });
     records.sort((a, b) => b.score - a.score);
