@@ -28,9 +28,9 @@ window.addEventListener("keydown", e => {
     } else if ((!gameStarted || gameOver) && (e.code === "Space" || e.code === "Enter")) {
         e.preventDefault();
         startNewGame();
-    } else if (gameStarted && !gameOver && (e.code === "Space" || e.code === "ArrowUp" || e.code === "KeyW")) {
-        e.preventDefault();
-        throwBanhammer();
+    } else if (gameStarted && !gameOver && !e.repeat && (e.code === "Space" || e.code === "ArrowUp" || e.code === "KeyW")) {
+    e.preventDefault();
+    throwBanhammer();
     }
 });
 window.addEventListener("keyup", e => { keys[e.code] = false; });
@@ -86,7 +86,6 @@ function loop(now) {
 
     if (gameStarted && !gameOver) {
         if (shootCooldown > 0) shootCooldown -= dt;
-        if (keys["Space"] || isPointerDown) throwBanhammer();
         if (keys["ArrowLeft"] || keys["KeyA"]) player.x -= player.speed * dt;
         if (keys["ArrowRight"] || keys["KeyD"]) player.x += player.speed * dt;
         if (pointerX !== null) player.x += (pointerX - player.w / 2 - player.x) * Math.min(1, 15 * dt);
