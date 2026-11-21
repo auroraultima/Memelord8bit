@@ -1,12 +1,12 @@
-const tg = window.Telegram?.WebApp;
-let playerName = "ANON";
-if (tg) {
-    tg.ready();
-    tg.expand();
-    const user = tg.initDataUnsafe?.user;
-    if (user?.username) playerName = user.username.toUpperCase().slice(0, 10);
-    else if (user?.first_name) playerName = user.first_name.toUpperCase().slice(0, 10);
-}
+// const tg = window.Telegram?.WebApp;
+let playerName = localStorage.getItem("memelord_player_name") || "ANON";
+// if (tg) {
+//     tg.ready();
+//     tg.expand();
+//     const user = tg.initDataUnsafe?.user;
+//     if (user?.username) playerName = user.username.toUpperCase().slice(0, 10);
+//     else if (user?.first_name) playerName = user.first_name.toUpperCase().slice(0, 10);
+// }
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");

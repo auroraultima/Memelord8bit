@@ -106,7 +106,7 @@ function loop(now) {
                     spawnExplosion(it.x + it.w / 2, it.y + it.h / 2, it.color);
                     if (it.type === "BAD") {
                         score += 50; play8BitSound(180, 540, 0.14);
-                        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred("medium");
+                        // if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred("medium");
                         statusText = `* БАНХАММЕР! ${it.cleanLabel} в бане (+50)!`;
                     } else if (it.type === "HEAL") {
                         play8BitSound(220, 75, 0.2);
@@ -129,17 +129,17 @@ function loop(now) {
             if (it.x < player.x + player.w + 5 && it.x + it.w > player.x - 5 && it.y < player.y + player.h && it.y + it.h > player.y - 20) {
                 if (it.type === "BAD") {
                     hp += it.pts; shakeTimer = 0.25; play8BitSound(220, 75, 0.25);
-                    if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred("heavy");
+                    // if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred("heavy");
                     statusText = `* ОЙ! Попался ${it.cleanLabel}!`;
                     if (hp <= 0) { hp = 0; gameOver = true; addRecord(score); }
                 } else if (it.type === "HEAL") {
                     const oldHp = hp; hp = Math.min(100, hp + it.pts); play8BitSound(440, 1100, 0.25);
-                    if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
+                    // if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
                     if (hp > oldHp) statusText = `* Кофе! +${hp - oldHp} HP иронии!`;
                     else { score += 100; statusText = "* Максимум HP! +100 бонусных очков!"; }
                 } else {
                     score += it.pts; play8BitSound(it.type === "GOLD" ? 660 : 520, it.type === "GOLD" ? 1320 : 880, 0.15);
-                    if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred("light");
+                    // if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred("light");
                     statusText = `* ${it.cleanLabel} (+${it.pts} очков)!`;
                 }
                 items.splice(i, 1);
